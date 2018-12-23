@@ -10,7 +10,6 @@ export default () => (
 				movies {
 					name
 					rank
-					watched
 					user {
 						email
 					}
@@ -21,8 +20,6 @@ export default () => (
 		{({ loading, error, data }) => {
 			if (loading) return <p>Loading...</p>;
 			if (error) return <p>Error :(</p>;
-
-			console.log('data', data.movies);
 
 			return <Movies movies={data.movies} />;
 		}}
