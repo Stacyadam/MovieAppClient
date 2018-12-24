@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import Auth from './Auth';
-import SignInMutation from '../mutations/SignInMutation';
+import AddMovie from '../components/movies/AddMovie';
 
 const Header = styled.div`
 	display: flex;
@@ -20,6 +20,7 @@ export default () => {
 		<Header>
 			<HeaderText>Movies App</HeaderText>
 			<Auth />
+			<AddMovie />
 		</Header>
 	);
 };

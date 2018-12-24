@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import { Mutation } from 'react-apollo';
 import styled from 'styled-components';
 
-const SignInWrapper = styled.div`
+const SignUpWrapper = styled.div`
 	display: flex;
 	justify-content: center;
 	padding: 20px;
@@ -24,15 +24,15 @@ const Errors = styled.p`
 	color: red;
 `;
 
-const SIGN_IN = gql`
-	mutation SignIn($email: String!, $password: String!) {
-		signIn(email: $email, password: $password) {
+const SIGN_UP = gql`
+	mutation SignUp($email: String!, $password: String!) {
+		signUp(email: $email, password: $password) {
 			token
 		}
 	}
 `;
 
-class SignInMutation extends Component {
+class SignUpMutation extends Component {
 	state = {
 		email: '',
 		password: '',
@@ -41,17 +41,17 @@ class SignInMutation extends Component {
 
 	render() {
 		return (
-			<Mutation mutation={SIGN_IN}>
-				{signIn => (
-					<SignInWrapper>
+			<Mutation mutation={SIGN_UP}>
+				{signUp => (
+					<SignUpWrapper>
 						<form
 							onSubmit={async e => {
 								e.preventDefault();
 								try {
-									const { data } = await signIn({
+									const { data } = await signUp({
 										variables: { email: this.state.email, password: this.state.password }
 									});
-									localStorage.setItem('token', data.signIn.token);
+									localStorage.setItem('token', data.signUp.token);
 									this.props.onClose();
 								} catch (err) {
 									const errors = err.graphQLErrors[0].message;
@@ -76,14 +76,14 @@ class SignInMutation extends Component {
 								/>
 							</InputWrapper>
 							<ButtonWrapper>
-								<button type="submit">Sign In</button>
+								<button type="submit">Sign Up</button>
 							</ButtonWrapper>
 						</form>
-					</SignInWrapper>
+					</SignUpWrapper>
 				)}
 			</Mutation>
 		);
 	}
 }
 
-export default SignInMutation;
+export default SignUpMutation;

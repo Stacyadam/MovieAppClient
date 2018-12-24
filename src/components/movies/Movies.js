@@ -52,7 +52,7 @@ class Movies extends Component {
 						<p>{user.email}</p>
 						<div style={{ display: 'flex', alignItems: 'center' }}>
 							<Button
-								intent="success"
+								intent="primary"
 								text="movie info"
 								onClick={() => this.showMovieModal({ name, rank, email: user.email })}
 							/>
