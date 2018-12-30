@@ -34,6 +34,7 @@ const authLink = setContext((_, { headers }) => {
 
 const cache = new InMemoryCache();
 
+//TODO: token needs to be reactive in some way but updating with a resolver on initial page load.
 const stateLink = withClientState({
 	defaults: {
 		token: token ? decodeJWT().email : null
