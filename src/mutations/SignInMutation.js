@@ -42,7 +42,7 @@ class SignInMutation extends Component {
 	render() {
 		return (
 			<Mutation mutation={SIGN_IN}>
-				{signIn => (
+				{(signIn, { client }) => (
 					<SignInWrapper>
 						<form
 							onSubmit={async e => {

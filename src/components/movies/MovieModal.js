@@ -48,8 +48,10 @@ class MovieModal extends Component {
 	state = {
 		movie: {}
 	};
+
 	render() {
 		const { isOpen, movie, closeModal } = this.props;
+
 		return (
 			<Dialog
 				isOpen={isOpen}
