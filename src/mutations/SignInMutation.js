@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import gql from 'graphql-tag';
 import { Mutation } from 'react-apollo';
 import styled from 'styled-components';
+import { decodeJWT } from '../lib';
 
 const SignInWrapper = styled.div`
 	display: flex;
@@ -52,6 +53,9 @@ class SignInMutation extends Component {
 										variables: { email: this.state.email, password: this.state.password }
 									});
 									localStorage.setItem('token', data.signIn.token);
+									//TODO: this should work with a resolvers and mutation
+									const { email } = decodeJWT();
+									client.writeData({ data: { token: email } });
 									this.props.onClose();
 								} catch (err) {
 									const errors = err.graphQLErrors[0].message;

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import gql from 'graphql-tag';
 import { Mutation } from 'react-apollo';
 import styled from 'styled-components';
+import { decodeJWT } from '../lib';
 
 const SignUpWrapper = styled.div`
 	display: flex;
@@ -42,7 +43,7 @@ class SignUpMutation extends Component {
 	render() {
 		return (
 			<Mutation mutation={SIGN_UP}>
-				{signUp => (
+				{(signUp, { client }) => (
 					<SignUpWrapper>
 						<form
 							onSubmit={async e => {
@@ -52,6 +53,9 @@ class SignUpMutation extends Component {
 										variables: { email: this.state.email, password: this.state.password }
 									});
 									localStorage.setItem('token', data.signUp.token);
+									//TODO: this should work with a resolvers and mutation
+									const { email } = decodeJWT();
+									client.writeData({ data: { token: email } });
 									this.props.onClose();
 								} catch (err) {
 									const errors = err.graphQLErrors[0].message;
