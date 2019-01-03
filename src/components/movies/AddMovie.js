@@ -4,6 +4,7 @@ import { Button, Dialog } from '@blueprintjs/core';
 import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
 import CreateMovieMutation from '../../mutations/CreateMovieMutation';
+import Slider from '../Slider';
 
 const ButtonContainer = styled.div`
 	margin-top: 10px;
@@ -28,9 +29,8 @@ class AddMovie extends Component {
 					if (loading) return <p>Loading...</p>;
 					if (error) return <p>Error :(</p>;
 
-					if (!data.token) {
-						return <div />;
-					}
+					if (!data.token) return <div />;
+
 					return (
 						<ButtonContainer>
 							<Button

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import gql from 'graphql-tag';
 import { Mutation } from 'react-apollo';
 import styled from 'styled-components';
+import Slider from '../components/Slider';
 
 const CreateMovieWrapper = styled.div`
 	display: flex;
@@ -55,6 +56,7 @@ class CreateMovieMutation extends Component {
 	};
 
 	render() {
+		//console.log('rank', this.state.rank);
 		return (
 			<Mutation
 				mutation={CREATE_MOVIE}
@@ -79,7 +81,7 @@ class CreateMovieMutation extends Component {
 								e.preventDefault();
 								try {
 									await createMovie({
-										variables: { name: this.state.name, rank: 4 }
+										variables: { name: this.state.name, rank: this.state.rank }
 									});
 									this.props.onClose();
 								} catch (err) {
@@ -98,6 +100,7 @@ class CreateMovieMutation extends Component {
 									value={this.state.name}
 								/>
 							</InputWrapper>
+							<Slider min={1} max={10} onChange={rank => this.setState({ rank: parseInt(rank) })} />
 							<ButtonWrapper>
 								<button type="submit">Add</button>
 							</ButtonWrapper>

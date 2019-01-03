@@ -52,6 +52,8 @@ class MovieModal extends Component {
 	render() {
 		const { isOpen, movie, closeModal } = this.props;
 
+		if (!movie) return <div />;
+
 		return (
 			<Dialog
 				isOpen={isOpen}

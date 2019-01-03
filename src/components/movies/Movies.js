@@ -54,6 +54,8 @@ class Movies extends Component {
 					if (loading) return <p>Loading...</p>;
 					if (error) return <p>Error :(</p>;
 
+					const sortedMovies = data.movies.sort((a, b) => b.rank - a.rank);
+
 					return (
 						<MoviesContainer>
 							<Header>
@@ -63,7 +65,7 @@ class Movies extends Component {
 								<p>Info</p>
 								<p>Rate</p>
 							</Header>
-							{data.movies.map((movie, i) => (
+							{sortedMovies.map((movie, i) => (
 								<MoviesWrapper key={i}>
 									<p>{movie.name}</p>
 									<p>{movie.rank}</p>
