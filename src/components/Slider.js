@@ -49,15 +49,6 @@ class Slider extends Component {
 		);
 	}
 
-	// _renderValues = () => {
-	// 	const { max } = this.props;
-	// 	const arr = [];
-	// 	for (let i = 1; i < max + 1; i++) {
-	// 		arr.push(i);
-	// 	}
-	// 	return arr.map(i => <p>{i}</p>);
-	// };
-
 	updateInput = e => {
 		const { onChange } = this.props;
 		this.setState({ value: e.target.value });
