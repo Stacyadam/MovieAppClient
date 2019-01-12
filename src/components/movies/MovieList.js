@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
-import { Button } from '@blueprintjs/core';
+import { Button, Icon } from '@blueprintjs/core';
 
 import MovieModal from './MovieModal';
 import RateMovieModal from './RateMovieModal';
@@ -27,11 +27,19 @@ const CHECK_USER = gql`
 	}
 `;
 
+const MovieHeader = styled.h2`
+	text-decoration: underline;
+`;
+
 class MovieList extends Component {
 	state = {
 		showMovieModal: false,
 		showRatingModal: false,
-		movie: {}
+		movie: {},
+		sortBy: {
+			type: 'name',
+			desc: true
+		}
 	};
 
 	render() {
@@ -44,13 +52,53 @@ class MovieList extends Component {
 					const { user } = client.cache.readQuery({ query: CHECK_USER });
 
 					return (
-						<MovieTable
-							header="Watch List"
-							titles={['Name', 'Rank', 'User', 'Info', user && 'Rate']}
-							hasMovies={data.movies.length > 0}
-						>
+						<MovieTable header="Watch List" hasMovies={data.movies.length > 0}>
+							<th
+								onClick={() =>
+									this.setState({ sortBy: { type: 'name', desc: !this.state.sortBy.desc } })
+								}
+							>
+								Name{' '}
+								<Icon
+									icon={
+										this.state.sortBy.desc && this.state.sortBy.type === 'name'
+											? 'caret-down'
+											: 'caret-up'
+									}
+								/>
+							</th>
+							<th
+								onClick={() =>
+									this.setState({ sortBy: { type: 'rank', desc: !this.state.sortBy.desc } })
+								}
+							>
+								Rank{' '}
+								<Icon
+									icon={
+										this.state.sortBy.desc && this.state.sortBy.type === 'rank'
+											? 'caret-up'
+											: 'caret-down'
+									}
+								/>
+							</th>
+							<th
+								onClick={() =>
+									this.setState({ sortBy: { type: 'user', desc: !this.state.sortBy.desc } })
+								}
+							>
+								User{' '}
+								<Icon
+									icon={
+										this.state.sortBy.desc && this.state.sortBy.type === 'user'
+											? 'caret-up'
+											: 'caret-down'
+									}
+								/>
+							</th>
+							<th>Info</th>
+							<th>Rate</th>
 							{data.movies
-								.sort((a, b) => b.rank - a.rank)
+								.sort((a, b) => this.sortBy(a, b))
 								.map((movie, i) => (
 									<tr key={i}>
 										<td style={{ width: '30%' }}>{movie.name}</td>
@@ -90,6 +138,63 @@ class MovieList extends Component {
 			</Query>
 		);
 	}
+
+	sortBy = (a, b) => {
+		switch (this.state.sortBy.type) {
+			case 'rank':
+				if (this.state.sortBy.desc) {
+					return b.rank - a.rank;
+				} else {
+					return a.rank - b.rank;
+				}
+			case 'name':
+				if (this.state.sortBy.desc) {
+					const nameA = a.name.toUpperCase();
+					const nameB = b.name.toUpperCase();
+					if (nameA < nameB) {
+						return -1;
+					}
+					if (nameA > nameB) {
+						return 1;
+					}
+					return 0;
+				} else {
+					const nameA = a.name.toUpperCase();
+					const nameB = b.name.toUpperCase();
+					if (nameA > nameB) {
+						return -1;
+					}
+					if (nameA < nameB) {
+						return 1;
+					}
+					return 0;
+				}
+			case 'user':
+				if (this.state.sortBy.desc) {
+					const nameA = a.user.email.toUpperCase();
+					const nameB = b.user.email.toUpperCase();
+					if (nameA < nameB) {
+						return -1;
+					}
+					if (nameA > nameB) {
+						return 1;
+					}
+					return 0;
+				} else {
+					const nameA = a.user.email.toUpperCase();
+					const nameB = b.user.email.toUpperCase();
+					if (nameA > nameB) {
+						return -1;
+					}
+					if (nameA < nameB) {
+						return 1;
+					}
+					return 0;
+				}
+			default:
+				break;
+		}
+	};
 }
 
 export default MovieList;

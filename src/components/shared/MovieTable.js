@@ -24,7 +24,7 @@ const MoviesTable = styled.table`
 
 class MovieTable extends Component {
 	render() {
-		const { titles, header, children, hasMovies } = this.props;
+		const { header, children, hasMovies } = this.props;
 
 		if (!hasMovies) {
 			return (
@@ -37,14 +37,7 @@ class MovieTable extends Component {
 		return (
 			<MoviesContainer>
 				<MovieHeader>{header}</MovieHeader>
-				<MoviesTable>
-					<tr>
-						{titles.map((title, i) => (
-							<th key={i}>{title}</th>
-						))}
-					</tr>
-					{children}
-				</MoviesTable>
+				<MoviesTable>{children}</MoviesTable>
 			</MoviesContainer>
 		);
 	}

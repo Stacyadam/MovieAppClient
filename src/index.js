@@ -13,7 +13,6 @@ import { decodeJWT } from './lib';
 
 //TODO: token needs to be reactive in some way but updating with a resolver on initial page load.
 const token = localStorage.getItem('token');
-console.log('this is token', token);
 
 const client = new ApolloClient({
 	uri: 'https://movies-app666.herokuapp.com/graphql',
