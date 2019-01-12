@@ -29,6 +29,8 @@ class MovieList extends Component {
 	};
 
 	render() {
+		const headers = ['Name', 'Stars', 'User', 'Info', 'Comments'];
+
 		return (
 			<Query query={GET_MOVIES}>
 				{({ loading, error, data, client }) => {
@@ -36,11 +38,10 @@ class MovieList extends Component {
 					if (error) return <p>Error :(</p>;
 
 					return (
-						<MovieTable
-							header="Watched List"
-							titles={['Name', 'Stars', 'User', 'Info', 'Comments']}
-							hasMovies={data.watchedMovies.length > 0}
-						>
+						<MovieTable header="Watched List" hasMovies={data.watchedMovies.length > 0}>
+							{headers.map((title, i) => (
+								<th>{title}</th>
+							))}
 							{data.watchedMovies
 								.sort((a, b) => b.stars - a.stars)
 								.map((movie, i) => (
