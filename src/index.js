@@ -3,56 +3,44 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
 import { ApolloProvider } from 'react-apollo';
-import { ApolloClient } from 'apollo-client';
-import { createHttpLink } from 'apollo-link-http';
-import { ApolloLink } from 'apollo-link';
-import { setContext } from 'apollo-link-context';
-import { InMemoryCache } from 'apollo-cache-inmemory';
-import { withClientState } from 'apollo-link-state';
-import { resolvers } from './resolvers';
+import ApolloClient from 'apollo-boost';
 
-import Movies from './components/movies/Movies';
+import MovieList from './components/movies/MovieList';
+import WatchedMovieList from './components/movies/WatchedMovieList';
 import { Header } from './components';
+import { resolvers } from './resolvers';
 import { decodeJWT } from './lib';
-//import { defaults, resolvers } from './resolvers';
-
-const httpLink = createHttpLink({
-	uri: 'https://movies-app666.herokuapp.com/graphql'
-});
-
-let token = localStorage.getItem('token');
-
-const authLink = setContext((_, { headers }) => {
-	// return the headers to the context so httpLink can read them
-	return {
-		headers: {
-			...headers,
-			authorization: token ? `Bearer ${token}` : ''
-		}
-	};
-});
-
-const cache = new InMemoryCache();
 
 //TODO: token needs to be reactive in some way but updating with a resolver on initial page load.
-const stateLink = withClientState({
-	defaults: {
-		token: token ? decodeJWT().email : null
-	},
-	resolvers,
-	cache
-});
+const token = localStorage.getItem('token');
 
 const client = new ApolloClient({
-	cache,
-	link: ApolloLink.from([stateLink, authLink.concat(httpLink)])
+	uri: 'https://movies-app666.herokuapp.com/graphql',
+	request: operation => {
+		const token = localStorage.getItem('token');
+		operation.setContext(context => {
+			return {
+				...context.headers,
+				headers: {
+					authorization: token ? `Bearer ${token}` : ''
+				}
+			};
+		});
+	},
+	clientState: {
+		defaults: {
+			user: token ? decodeJWT(token).email : null
+		},
+		resolvers
+	}
 });
 
 const App = () => (
 	<ApolloProvider client={client}>
 		<div>
 			<Header />
-			<Movies />
+			<MovieList />
+			<WatchedMovieList />
 		</div>
 	</ApolloProvider>
 );

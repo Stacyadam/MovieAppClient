@@ -52,11 +52,10 @@ const GET_MOVIES = gql`
 class CreateMovieMutation extends Component {
 	state = {
 		name: '',
-		rank: null
+		rank: 5
 	};
 
 	render() {
-		//console.log('rank', this.state.rank);
 		return (
 			<Mutation
 				mutation={CREATE_MOVIE}
@@ -76,20 +75,7 @@ class CreateMovieMutation extends Component {
 			>
 				{(createMovie, { data }) => (
 					<CreateMovieWrapper>
-						<form
-							onSubmit={async e => {
-								e.preventDefault();
-								try {
-									await createMovie({
-										variables: { name: this.state.name, rank: this.state.rank }
-									});
-									this.props.onClose();
-								} catch (err) {
-									const errors = err.graphQLErrors[0].message;
-									this.setState({ errors });
-								}
-							}}
-						>
+						<form onSubmit={e => this.handleSubmit(e, createMovie)}>
 							<InputWrapper>
 								<Errors>{this.state.errors}</Errors>
 								<p>Movie Name</p>
@@ -110,6 +96,19 @@ class CreateMovieMutation extends Component {
 			</Mutation>
 		);
 	}
+
+	handleSubmit = async (e, createMovie) => {
+		e.preventDefault();
+		try {
+			await createMovie({
+				variables: { name: this.state.name, rank: this.state.rank }
+			});
+			this.props.onClose();
+		} catch (err) {
+			const errors = err.graphQLErrors[0].message;
+			this.setState({ errors });
+		}
+	};
 }
 
 export default CreateMovieMutation;

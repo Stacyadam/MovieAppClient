@@ -4,15 +4,14 @@ import { Button, Dialog } from '@blueprintjs/core';
 import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
 import CreateMovieMutation from '../../mutations/CreateMovieMutation';
-import Slider from '../Slider';
 
 const ButtonContainer = styled.div`
 	margin-top: 10px;
 `;
 
-const CHECK_TOKEN = gql`
+const CHECK_USER = gql`
 	{
-		token @client
+		user @client
 	}
 `;
 
@@ -24,12 +23,12 @@ class AddMovie extends Component {
 	render() {
 		return (
 			//This needs to be a mutation with a resolver that updates the client caches token
-			<Query query={CHECK_TOKEN}>
+			<Query query={CHECK_USER}>
 				{({ loading, error, data, client }) => {
 					if (loading) return <p>Loading...</p>;
 					if (error) return <p>Error :(</p>;
 
-					if (!data.token) return <div />;
+					if (!data.user) return <div />;
 
 					return (
 						<ButtonContainer>

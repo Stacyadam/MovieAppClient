@@ -56,7 +56,7 @@ class SignUpMutation extends Component {
 									//TODO: this should work with a resolvers and mutation
 									const { email } = decodeJWT();
 									client.writeData({ data: { token: email } });
-									this.props.onClose();
+									window.location.reload(false);
 								} catch (err) {
 									const errors = err.graphQLErrors[0].message;
 									this.setState({ errors });

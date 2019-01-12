@@ -1,17 +1,12 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
-import moment from 'moment';
+import { format } from 'date-fns';
 
 import { Dialog, Button } from '@blueprintjs/core';
 
 const ModalContainer = styled.div`
 	padding: 20px 20px 0 20px;
-`;
-
-const UserWrapper = styled.div`
-	display: flex;
-	flex-direction: row;
 `;
 
 const UserTable = styled.table`
@@ -67,24 +62,25 @@ class MovieModal extends Component {
 						<tbody>
 							<tr>
 								<th>User</th>
-								<th>User Rank</th>
+								{movie.stars && <th>User Stars</th>}
 								<th>Internet Rank</th>
 							</tr>
 							<tr>
-								<td>{movie.email}</td>
-								<td>{movie.rank}</td>
+								<td>{movie.user && movie.user.email}</td>
+								{movie.stars && <td>{movie.stars}</td>}
 								<td>{this.state.movie.internetRank}</td>
 							</tr>
 						</tbody>
 					</UserTable>
 					<MainContent>
 						<iframe
+							title="Movie Trailer"
 							width="400"
 							height="200"
 							src={`https://www.youtube.com/embed?&listType=search&list=${movie.name}trailer`}
-							frameborder="0"
+							frameBorder="0"
 							allow="autoplay; encrypted-media"
-							allowfullscreen
+							allowFullscreen
 						/>
 						<p>{this.state.movie.overview}</p>
 						<h3>Release Date:</h3>
@@ -111,7 +107,7 @@ class MovieModal extends Component {
 		//handle if movie doens't exit in movie DB
 		if (!movieResult) return;
 
-		const releaseDate = moment(movieResult.release_date).format('MMMM Do YYYY');
+		const releaseDate = format(movieResult.release_date, 'MMMM Do YYYY');
 
 		const movie = {
 			internetRank: movieResult.vote_average,

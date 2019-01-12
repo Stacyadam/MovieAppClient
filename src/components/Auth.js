@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import SignInMutation from '../mutations/SignInMutation';
 import SignUpMutation from '../mutations/SignUpMutation';
-import { Query } from 'react-apollo';
+import { Query, Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
 
 import { Dialog } from '@blueprintjs/core';
@@ -18,9 +18,20 @@ const AuthWrapper = styled.div`
 	}
 `;
 
-const CHECK_TOKEN = gql`
+const LogoutButton = styled.button`
+	display: block;
+	margin: 6px auto 0;
+`;
+
+const CHECK_USER = gql`
 	{
-		token @client
+		user @client
+	}
+`;
+
+const REMOVE_TOKEN = gql`
+	mutation {
+		logout @client
 	}
 `;
 
@@ -33,24 +44,28 @@ class Auth extends Component {
 	render() {
 		return (
 			//TODO: this needs to be a mutation that has a resolver that updates client cache
-			<Query query={CHECK_TOKEN}>
+			<Query query={CHECK_USER}>
 				{({ loading, error, data, client }) => {
 					if (loading) return <p>Loading...</p>;
 					if (error) return <p>Error :(</p>;
 
-					if (data.token) {
-						return <div>{data.token}</div>;
+					if (data.user) {
+						return (
+							<div>
+								<div>{data.user}</div>
+								<Mutation mutation={REMOVE_TOKEN}>
+									{logout => <LogoutButton onClick={logout}>Sign Out</LogoutButton>}
+								</Mutation>
+							</div>
+						);
 					}
+
 					return (
 						<AuthWrapper>
-							{!this.state.email ? (
-								<div>
-									<a onClick={() => this.setState({ showSignInModal: true })}>Sign In</a>
-									<a onClick={() => this.setState({ showSignUpModal: true })}>Sign Up</a>
-								</div>
-							) : (
-								this.state.email
-							)}
+							<div>
+								<a onClick={() => this.setState({ showSignInModal: true })}>Sign In</a>
+								<a onClick={() => this.setState({ showSignUpModal: true })}>Sign Up</a>
+							</div>
 							<Dialog
 								isOpen={this.state.showSignInModal}
 								onClose={() => this.setState({ showSignInModal: false })}
@@ -72,52 +87,5 @@ class Auth extends Component {
 		);
 	}
 }
-
-// class Auth extends Component {
-// 	state = {
-// 		showSignIn: false,
-// 		showSignUp: false,
-// 		email: null
-// 	};
-
-// 	componentDidUpdate() {
-// 		const jwt = decodeJWT();
-// 		if (jwt && !this.state.email) {
-// 			const { email } = jwt;
-// 			this.setState({ email });
-// 		}
-// 	}
-
-// 	render() {
-// 		//TODO The UI isn't updating after logging in
-
-// 		return (
-// 			<AuthWrapper>
-// 				{!this.state.email ? (
-// 					<div>
-// 						<a onClick={() => this.setState({ showSignIn: true })}>Sign In</a>
-// 						<a onClick={() => this.setState({ showSignUp: true })}>Sign Up</a>
-// 					</div>
-// 				) : (
-// 					this.state.email
-// 				)}
-// 				<Dialog
-// 					isOpen={this.state.showSignIn}
-// 					onClose={() => this.setState({ showSignIn: false })}
-// 					title="Sign In"
-// 				>
-// 					<SignInMutation onClose={() => this.setState({ showSignIn: false })} />
-// 				</Dialog>
-// 				<Dialog
-// 					isOpen={this.state.showSignUp}
-// 					onClose={() => this.setState({ showSignUp: false })}
-// 					title="Sign Up"
-// 				>
-// 					<SignUpMutation onClose={() => this.setState({ showSignIn: false })} />
-// 				</Dialog>
-// 			</AuthWrapper>
-// 		);
-// 	}
-// }
 
 export default Auth;
