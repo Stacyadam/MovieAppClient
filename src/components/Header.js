@@ -2,6 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import Auth from './Auth';
 import AddMovie from '../components/movies/AddMovie';
+import { Query } from 'react-apollo';
+import gql from 'graphql-tag';
 
 const Header = styled.div`
 	display: flex;
@@ -15,12 +17,35 @@ const HeaderText = styled.p`
 	font-weight: bold;
 `;
 
+const PremiumText = styled.p`
+	margin-top: 10px;
+	color: red;
+`;
+
+const CHECK_USER_ROLE = gql`
+	{
+		userRole @client
+	}
+`;
+
 export default () => {
 	return (
-		<Header>
-			<HeaderText>Movies App</HeaderText>
-			<Auth />
-			<AddMovie />
-		</Header>
+		<Query query={CHECK_USER_ROLE}>
+			{({ data }) => {
+				return (
+					<Header>
+						<HeaderText>Movies App</HeaderText>
+						<Auth />
+						{data.userRole === 'admin' ? (
+							<AddMovie />
+						) : (
+							<PremiumText>
+								Only premium members can add movies. Join now for only $300 a month.
+							</PremiumText>
+						)}
+					</Header>
+				);
+			}}
+		</Query>
 	);
 };
