@@ -43,6 +43,7 @@ class MovieList extends Component {
 	};
 
 	render() {
+		const { sortBy } = this.state;
 		return (
 			<Query query={GET_MOVIES}>
 				{({ loading, error, data, client }) => {
@@ -53,47 +54,14 @@ class MovieList extends Component {
 
 					return (
 						<MovieTable header="Watch List" hasMovies={data.movies.length > 0}>
-							<th
-								onClick={() =>
-									this.setState({ sortBy: { type: 'name', desc: !this.state.sortBy.desc } })
-								}
-							>
-								Name{' '}
-								<Icon
-									icon={
-										this.state.sortBy.desc && this.state.sortBy.type === 'name'
-											? 'caret-down'
-											: 'caret-up'
-									}
-								/>
+							<th onClick={() => this.setState({ sortBy: { type: 'name', desc: !sortBy.desc } })}>
+								Name <Icon icon={!sortBy.desc && sortBy.type === 'name' ? 'caret-up' : 'caret-down'} />
 							</th>
-							<th
-								onClick={() =>
-									this.setState({ sortBy: { type: 'rank', desc: !this.state.sortBy.desc } })
-								}
-							>
-								Rank{' '}
-								<Icon
-									icon={
-										this.state.sortBy.desc && this.state.sortBy.type === 'rank'
-											? 'caret-up'
-											: 'caret-down'
-									}
-								/>
+							<th onClick={() => this.setState({ sortBy: { type: 'rank', desc: !sortBy.desc } })}>
+								Rank <Icon icon={!sortBy.desc && sortBy.type === 'rank' ? 'caret-up' : 'caret-down'} />
 							</th>
-							<th
-								onClick={() =>
-									this.setState({ sortBy: { type: 'user', desc: !this.state.sortBy.desc } })
-								}
-							>
-								User{' '}
-								<Icon
-									icon={
-										this.state.sortBy.desc && this.state.sortBy.type === 'user'
-											? 'caret-up'
-											: 'caret-down'
-									}
-								/>
+							<th onClick={() => this.setState({ sortBy: { type: 'user', desc: !sortBy.desc } })}>
+								User <Icon icon={!sortBy.desc && sortBy.type === 'user' ? 'caret-up' : 'caret-down'} />
 							</th>
 							<th>Info</th>
 							<th>Rate</th>
