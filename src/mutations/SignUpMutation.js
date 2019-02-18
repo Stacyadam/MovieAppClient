@@ -67,7 +67,7 @@ class SignUpMutation extends Component {
 								<Errors>{this.state.errors}</Errors>
 								<p>Email</p>
 								<input
-									placeholder="test@test.coms"
+									placeholder="jon@gmail.com"
 									type="text"
 									onChange={e => this.setState({ email: e.target.value })}
 									value={this.state.email}
