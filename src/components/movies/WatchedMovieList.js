@@ -38,9 +38,9 @@ class MovieList extends Component {
 					if (error) return <p>Error :(</p>;
 
 					return (
-						<MovieTable header="Watched List" hasMovies={data.watchedMovies.length > 0}>
-							{headers.map((title, i) => (
-								<th>{title}</th>
+						<MovieTable header="Watched List" hasMovies={!!data.watchedMovies.length}>
+							{headers.map(title => (
+								<th key={title}>{title}</th>
 							))}
 							{data.watchedMovies
 								.sort((a, b) => b.stars - a.stars)

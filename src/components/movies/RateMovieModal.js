@@ -68,21 +68,20 @@ const WATCHED_MOVIES = gql`
 
 class RateMovieModal extends Component {
 	state = {
-		stars: null,
+		stars: 0,
 		comment: ''
 	};
 
 	render() {
-		const { isOpen, movie, closeModal } = this.props;
+		const { isOpen, movie } = this.props;
 
 		if (!movie) return <div />;
 
 		return (
-			<Dialog isOpen={isOpen} icon="info-sign" onClose={() => closeModal()} title={movie.name}>
+			<Dialog isOpen={isOpen} icon="info-sign" onClose={this.closeAndResetStars} title={movie.name}>
 				<Mutation
 					mutation={RATE_MOVIE}
 					update={(cache, { data: { rateMovie } }) => {
-						//const { movies } = cache.readQuery({ query: MOVIES });
 						const { watchedMovies } = cache.readQuery({ query: WATCHED_MOVIES });
 						const { movies } = cache.readQuery({ query: MOVIES });
 						cache.writeQuery({
@@ -122,9 +121,13 @@ class RateMovieModal extends Component {
 		);
 	}
 
+	closeAndResetStars = () => {
+		this.setState({ stars: null });
+		this.props.closeModal();
+	};
+
 	handleSubmit = async (e, rateMovie) => {
 		e.preventDefault();
-		console.log('this is comment', this.state.comment);
 
 		try {
 			await rateMovie({

@@ -1,10 +1,23 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
+import { Icon } from '@blueprintjs/core';
+import { Collapse } from 'react-collapse';
 
 const MoviesContainer = styled.div`
 	margin-left: auto;
 	margin-right: auto;
 	width: 50%;
+`;
+
+const MovieWrapper = styled.div`
+	flex-direction: row;
+	width: 150px;
+	span {
+		vertical-align: middle;
+	}
+	&:hover {
+		cursor: pointer;
+	}
 `;
 
 const MovieHeader = styled.h2`
@@ -23,6 +36,10 @@ const MoviesTable = styled.table`
 `;
 
 class MovieTable extends Component {
+	state = {
+		show: true
+	};
+
 	render() {
 		const { header, children, hasMovies } = this.props;
 
@@ -36,8 +53,15 @@ class MovieTable extends Component {
 		}
 		return (
 			<MoviesContainer>
-				<MovieHeader>{header}</MovieHeader>
-				<MoviesTable>{children}</MoviesTable>
+				<MovieWrapper>
+					<MovieHeader onClick={() => this.setState({ show: !this.state.show })}>
+						{header}
+						<Icon icon={this.state.show ? 'caret-down' : 'caret-up'} />
+					</MovieHeader>
+				</MovieWrapper>
+				<Collapse isOpened={this.state.show}>
+					<MoviesTable>{children}</MoviesTable>
+				</Collapse>
 			</MoviesContainer>
 		);
 	}

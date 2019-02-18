@@ -88,7 +88,13 @@ class MovieModal extends Component {
 					</MainContent>
 					<ButtonsWrapper>
 						<Button intent="none" text="Close" onClick={() => closeModal()} style={{ marginRight: 10 }} />
-						<Button intent="primary" text="IMDB" onClick={() => console.log('sdf')} />
+						<Button
+							intent="primary"
+							text="IMDB"
+							onClick={() =>
+								window.open(`https://www.imdb.com/search/title?title=${movie.name}`, '_blank')
+							}
+						/>
 					</ButtonsWrapper>
 				</ModalContainer>
 			</Dialog>

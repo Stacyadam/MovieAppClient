@@ -3,6 +3,7 @@ import gql from 'graphql-tag';
 import { Mutation } from 'react-apollo';
 import styled from 'styled-components';
 import Slider from '../components/Slider';
+import { titleCase } from '../lib';
 
 const CreateMovieWrapper = styled.div`
 	display: flex;
@@ -55,6 +56,10 @@ class CreateMovieMutation extends Component {
 		rank: 5
 	};
 
+	componentDidMount() {
+		this.nameInput.focus();
+	}
+
 	render() {
 		return (
 			<Mutation
@@ -80,9 +85,14 @@ class CreateMovieMutation extends Component {
 								<Errors>{this.state.errors}</Errors>
 								<p>Movie Name</p>
 								<input
-									placeholder="All Dogs go to Heaven"
+									ref={nameInput => (this.nameInput = nameInput)}
+									placeholder="All Dogs Go to Heaven"
 									type="text"
-									onChange={e => this.setState({ name: e.target.value })}
+									onChange={e =>
+										this.setState({
+											name: titleCase(e.target.value)
+										})
+									}
 									value={this.state.name}
 								/>
 							</InputWrapper>

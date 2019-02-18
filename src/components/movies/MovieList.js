@@ -27,17 +27,13 @@ const CHECK_USER = gql`
 	}
 `;
 
-const MovieHeader = styled.h2`
-	text-decoration: underline;
-`;
-
 class MovieList extends Component {
 	state = {
 		showMovieModal: false,
 		showRatingModal: false,
 		movie: {},
 		sortBy: {
-			type: 'name',
+			type: 'rank',
 			desc: true
 		}
 	};
@@ -64,12 +60,12 @@ class MovieList extends Component {
 								User <Icon icon={!sortBy.desc && sortBy.type === 'user' ? 'caret-up' : 'caret-down'} />
 							</th>
 							<th>Info</th>
-							<th>Rate</th>
+							{user && <th>Rate</th>}
 							{data.movies
 								.sort((a, b) => this.sortBy(a, b))
 								.map((movie, i) => (
 									<tr key={i}>
-										<td style={{ width: '30%' }}>{movie.name}</td>
+										<td style={{ width: '30%', textTransform: 'capitalize' }}>{movie.name}</td>
 										<td>{movie.rank}</td>
 										<td>{movie.user.email}</td>
 										<td>
@@ -107,6 +103,8 @@ class MovieList extends Component {
 		);
 	}
 
+	//TODO
+	//This needs to be broken up into functions.
 	sortBy = (a, b) => {
 		switch (this.state.sortBy.type) {
 			case 'rank':
