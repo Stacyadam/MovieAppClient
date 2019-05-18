@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import gql from 'graphql-tag';
-import { Mutation } from 'react-apollo';
+import { useMutation } from 'react-apollo-hooks';
 import styled from 'styled-components';
 import Slider from '../components/Slider';
 import { titleCase } from '../lib';
@@ -50,75 +50,63 @@ const GET_MOVIES = gql`
 	}
 `;
 
-class CreateMovieMutation extends Component {
-	state = {
-		name: '',
-		rank: 5
-	};
+const CreateMovieMutation = ({ onClose }) => {
+	const [name, updateName] = useState('');
+	const [rank, updateRank] = useState(5);
+	const [errors, updateErrors] = useState(null);
+	const nameInput = useRef();
 
-	componentDidMount() {
-		this.nameInput.focus();
-	}
+	const createMovie = useMutation(CREATE_MOVIE, {
+		variables: {
+			name,
+			rank
+		},
+		update: (cache, mutationResult) => {
+			const { createMovie } = mutationResult.data;
+			const { movies } = cache.readQuery({ query: GET_MOVIES });
+			cache.writeQuery({
+				query: GET_MOVIES,
+				data: { movies: movies.concat([createMovie]) }
+			});
+		}
+	});
 
-	render() {
-		return (
-			<Mutation
-				mutation={CREATE_MOVIE}
-				//update ui, get access to the cache in the first argument
-				//and the response data from the mutation in the 2nd argument
-				update={(cache, { data: { createMovie } }) => {
-					//get all the movies from the cache based on the original GET_MOVIES Query
-					const { movies } = cache.readQuery({ query: GET_MOVIES });
-					//write a new query to cache that gets all the movies currently in cache
-					cache.writeQuery({
-						query: GET_MOVIES,
-						//write new data to cache that takes the current movies and adds the one
-						//returned from the mutation
-						data: { movies: movies.concat([createMovie]) }
-					});
-				}}
-			>
-				{(createMovie, { data }) => (
-					<CreateMovieWrapper>
-						<form onSubmit={e => this.handleSubmit(e, createMovie)}>
-							<InputWrapper>
-								<Errors>{this.state.errors}</Errors>
-								<p>Movie Name</p>
-								<input
-									ref={nameInput => (this.nameInput = nameInput)}
-									placeholder="All Dogs Go to Heaven"
-									type="text"
-									onChange={e =>
-										this.setState({
-											name: titleCase(e.target.value)
-										})
-									}
-									value={this.state.name}
-								/>
-							</InputWrapper>
-							<Slider min={1} max={10} onChange={rank => this.setState({ rank: parseInt(rank) })} />
-							<ButtonWrapper>
-								<button type="submit">Add</button>
-							</ButtonWrapper>
-						</form>
-					</CreateMovieWrapper>
-				)}
-			</Mutation>
-		);
-	}
+	useEffect(() => {
+		nameInput.current.focus();
+	}, []);
 
-	handleSubmit = async (e, createMovie) => {
+	const handleSubmit = async e => {
 		e.preventDefault();
 		try {
-			await createMovie({
-				variables: { name: this.state.name, rank: this.state.rank }
-			});
-			this.props.onClose();
+			await createMovie();
+			onClose();
 		} catch (err) {
-			const errors = err.graphQLErrors[0].message;
-			this.setState({ errors });
+			const errorMessage = err.graphQLErrors[0].message;
+			updateErrors(errorMessage);
 		}
 	};
-}
+
+	return (
+		<CreateMovieWrapper>
+			<form onSubmit={e => handleSubmit(e)}>
+				<InputWrapper>
+					<Errors>{errors}</Errors>
+					<p>Movie Name</p>
+					<input
+						ref={nameInput}
+						placeholder="All Dogs Go to Heaven"
+						type="text"
+						onChange={e => updateName(titleCase(e.target.value))}
+						value={name}
+					/>
+				</InputWrapper>
+				<Slider min={1} max={10} onChange={rank => updateRank(parseInt(rank))} />
+				<ButtonWrapper>
+					<button type="submit">Add</button>
+				</ButtonWrapper>
+			</form>
+		</CreateMovieWrapper>
+	);
+};
 
 export default CreateMovieMutation;

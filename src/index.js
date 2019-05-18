@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
 import { ApolloProvider } from 'react-apollo';
+import { ApolloProvider as ApolloHooksProvider } from 'react-apollo-hooks';
 import ApolloClient from 'apollo-boost';
 
 import MovieList from './components/movies/MovieList';
@@ -38,11 +39,13 @@ const client = new ApolloClient({
 
 const App = () => (
 	<ApolloProvider client={client}>
-		<div>
-			<Header />
-			<MovieList />
-			<WatchedMovieList />
-		</div>
+		<ApolloHooksProvider client={client}>
+			<div>
+				<Header />
+				<MovieList />
+				<WatchedMovieList />
+			</div>
+		</ApolloHooksProvider>
 	</ApolloProvider>
 );
 

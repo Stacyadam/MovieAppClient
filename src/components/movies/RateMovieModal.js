@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import ReactStars from 'react-stars';
 import gql from 'graphql-tag';
-import { Mutation } from 'react-apollo';
+import { useMutation } from 'react-apollo-hooks';
 
 import { Dialog } from '@blueprintjs/core';
 
@@ -41,7 +41,7 @@ const RATE_MOVIE = gql`
 	}
 `;
 
-const MOVIES = gql`
+const ALL_MOVIES = gql`
 	{
 		movies {
 			name
@@ -50,11 +50,6 @@ const MOVIES = gql`
 				email
 			}
 		}
-	}
-`;
-
-const WATCHED_MOVIES = gql`
-	{
 		watchedMovies {
 			name
 			comment
@@ -66,79 +61,149 @@ const WATCHED_MOVIES = gql`
 	}
 `;
 
-class RateMovieModal extends Component {
-	state = {
-		stars: 0,
-		comment: ''
+const RateMovieModal = ({ isOpen, movie, closeModal }) => {
+	const [stars, updateStars] = useState(0);
+	const [comment, updateComment] = useState('');
+	const [error, updateErrors] = useState(null);
+
+	const closeAndResetStars = () => {
+		updateStars(null);
+		closeModal();
 	};
 
-	render() {
-		const { isOpen, movie } = this.props;
+	const rateMovie = useMutation(RATE_MOVIE, {
+		update: (cache, mutationResult) => {
+			const { watchedMovies, movies } = cache.readQuery({ query: ALL_MOVIES });
+			const { rateMovie } = mutationResult.data;
 
-		if (!movie) return <div />;
+			cache.writeQuery({
+				query: ALL_MOVIES,
+				data: {
+					movies: movies.filter(movie => movie.name !== rateMovie.name),
+					watchedMovies: watchedMovies.concat([rateMovie])
+				}
+			});
+		}
+	});
 
-		return (
-			<Dialog isOpen={isOpen} icon="info-sign" onClose={this.closeAndResetStars} title={movie.name}>
-				<Mutation
-					mutation={RATE_MOVIE}
-					update={(cache, { data: { rateMovie } }) => {
-						const { watchedMovies } = cache.readQuery({ query: WATCHED_MOVIES });
-						const { movies } = cache.readQuery({ query: MOVIES });
-						cache.writeQuery({
-							query: MOVIES,
-							data: { movies: movies.filter(movie => movie.name !== rateMovie.name) }
-						});
-
-						cache.writeQuery({
-							query: WATCHED_MOVIES,
-							data: { watchedMovies: watchedMovies.concat([rateMovie]) }
-						});
-					}}
-				>
-					{(rateMovie, { data }) => (
-						<ModalContainer onSubmit={e => this.handleSubmit(e, rateMovie)}>
-							<StarsWrapper>
-								<h2>Stars</h2>
-								<ReactStars
-									value={this.state.stars}
-									count={10}
-									onChange={stars => this.setState({ stars })}
-									size={24}
-									color2={'#ffd700'}
-								/>
-							</StarsWrapper>
-							<h2>Comment</h2>
-							<CommentTextArea
-								placeholder="Add a comment. (optional)"
-								value={this.state.comment}
-								onChange={e => this.setState({ comment: e.target.value })}
-							/>
-							<button type="submit">Rate</button>
-						</ModalContainer>
-					)}
-				</Mutation>
-			</Dialog>
-		);
-	}
-
-	closeAndResetStars = () => {
-		this.setState({ stars: null });
-		this.props.closeModal();
-	};
-
-	handleSubmit = async (e, rateMovie) => {
+	const handleSubmit = async e => {
 		e.preventDefault();
 
 		try {
 			await rateMovie({
-				variables: { name: this.props.movie.name, stars: this.state.stars, comment: this.state.comment }
+				variables: {
+					stars,
+					comment,
+					name: movie.name
+				}
 			});
-			this.props.closeModal();
+			closeModal();
 		} catch (err) {
 			const errors = err.graphQLErrors[0].message;
-			this.setState({ errors });
+			updateErrors(errors);
 		}
 	};
-}
+
+	if (!movie) return <div />;
+
+	return (
+		<Dialog isOpen={isOpen} icon="info-sign" onClose={closeAndResetStars} title={movie.name}>
+			<ModalContainer onSubmit={e => handleSubmit(e)}>
+				<StarsWrapper>
+					<h2>Stars</h2>
+					<ReactStars
+						value={stars}
+						count={10}
+						onChange={stars => updateStars(stars)}
+						size={24}
+						color2={'#ffd700'}
+					/>
+				</StarsWrapper>
+				<h2>Comment</h2>
+				<CommentTextArea
+					placeholder="Add a comment. (optional)"
+					value={comment}
+					onChange={e => updateComment(e.target.value)}
+				/>
+				<button type="submit">Rate</button>
+			</ModalContainer>
+		</Dialog>
+	);
+};
+
+// class RateMovieModal extends Component {
+// 	state = {
+// 		stars: 0,
+// 		comment: ''
+// 	};
+
+// 	render() {
+// 		const { isOpen, movie } = this.props;
+
+// 		if (!movie) return <div />;
+
+// 		return (
+// 			<Dialog isOpen={isOpen} icon="info-sign" onClose={this.closeAndResetStars} title={movie.name}>
+// 				<Mutation
+// 					mutation={RATE_MOVIE}
+// 					update={(cache, { data: { rateMovie } }) => {
+// 						const { watchedMovies } = cache.readQuery({ query: WATCHED_MOVIES });
+// 						const { movies } = cache.readQuery({ query: MOVIES });
+// 						cache.writeQuery({
+// 							query: MOVIES,
+// 							data: { movies: movies.filter(movie => movie.name !== rateMovie.name) }
+// 						});
+
+// 						cache.writeQuery({
+// 							query: WATCHED_MOVIES,
+// 							data: { watchedMovies: watchedMovies.concat([rateMovie]) }
+// 						});
+// 					}}
+// 				>
+// 					{(rateMovie, { data }) => (
+// 						<ModalContainer onSubmit={e => this.handleSubmit(e, rateMovie)}>
+// 							<StarsWrapper>
+// 								<h2>Stars</h2>
+// 								<ReactStars
+// 									value={this.state.stars}
+// 									count={10}
+// 									onChange={stars => this.setState({ stars })}
+// 									size={24}
+// 									color2={'#ffd700'}
+// 								/>
+// 							</StarsWrapper>
+// 							<h2>Comment</h2>
+// 							<CommentTextArea
+// 								placeholder="Add a comment. (optional)"
+// 								value={this.state.comment}
+// 								onChange={e => this.setState({ comment: e.target.value })}
+// 							/>
+// 							<button type="submit">Rate</button>
+// 						</ModalContainer>
+// 					)}
+// 				</Mutation>
+// 			</Dialog>
+// 		);
+// 	}
+
+// 	closeAndResetStars = () => {
+// 		this.setState({ stars: null });
+// 		this.props.closeModal();
+// 	};
+
+// 	handleSubmit = async (e, rateMovie) => {
+// 		e.preventDefault();
+
+// 		try {
+// 			await rateMovie({
+// 				variables: { name: this.props.movie.name, stars: this.state.stars, comment: this.state.comment }
+// 			});
+// 			this.props.closeModal();
+// 		} catch (err) {
+// 			const errors = err.graphQLErrors[0].message;
+// 			this.setState({ errors });
+// 		}
+// 	};
+// }
 
 export default RateMovieModal;

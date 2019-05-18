@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import SignInMutation from '../mutations/SignInMutation';
 import SignUpMutation from '../mutations/SignUpMutation';
-import { Query, Mutation } from 'react-apollo';
+import { useQuery, useMutation } from 'react-apollo-hooks';
 import gql from 'graphql-tag';
 
 import { Dialog } from '@blueprintjs/core';
@@ -35,57 +35,38 @@ const REMOVE_TOKEN = gql`
 	}
 `;
 
-class Auth extends Component {
-	state = {
-		showSignInModal: false,
-		showSignUpModal: false
-	};
+const Auth = () => {
+	const [signInModal, showSignInModal] = useState(false);
+	const [signUpModal, showSignUpModal] = useState(false);
+	const { data, error, loading } = useQuery(CHECK_USER);
+	const logout = useMutation(REMOVE_TOKEN);
 
-	render() {
+	if (loading) return <p>Loading...</p>;
+	if (error) return <p>Error :(</p>;
+
+	if (data.user) {
 		return (
-			//TODO: this needs to be a mutation that has a resolver that updates client cache
-			<Query query={CHECK_USER}>
-				{({ loading, error, data, client }) => {
-					if (loading) return <p>Loading...</p>;
-					if (error) return <p>Error :(</p>;
-
-					if (data.user) {
-						return (
-							<div>
-								<div>{data.user}</div>
-								<Mutation mutation={REMOVE_TOKEN}>
-									{logout => <LogoutButton onClick={logout}>Sign Out</LogoutButton>}
-								</Mutation>
-							</div>
-						);
-					}
-
-					return (
-						<AuthWrapper>
-							<div>
-								<a onClick={() => this.setState({ showSignInModal: true })}>Sign In</a>
-								<a onClick={() => this.setState({ showSignUpModal: true })}>Sign Up</a>
-							</div>
-							<Dialog
-								isOpen={this.state.showSignInModal}
-								onClose={() => this.setState({ showSignInModal: false })}
-								title="Sign In"
-							>
-								<SignInMutation onClose={() => this.setState({ showSignInModal: false })} />
-							</Dialog>
-							<Dialog
-								isOpen={this.state.showSignUpModal}
-								onClose={() => this.setState({ showSignUpModal: false })}
-								title="Sign Up"
-							>
-								<SignUpMutation onClose={() => this.setState({ showSignUpModal: false })} />
-							</Dialog>
-						</AuthWrapper>
-					);
-				}}
-			</Query>
+			<div>
+				<div>{data.user}</div>
+				<LogoutButton onClick={logout}>Sign Out</LogoutButton>
+			</div>
 		);
 	}
-}
+
+	return (
+		<AuthWrapper>
+			<div>
+				<a onClick={() => showSignInModal(true)}>Sign In</a>
+				<a onClick={() => showSignUpModal(true)}>Sign Up</a>
+			</div>
+			<Dialog isOpen={signInModal} onClose={() => showSignInModal(false)} title="Sign In">
+				<SignInMutation onClose={() => showSignInModal(false)} />
+			</Dialog>
+			<Dialog isOpen={signUpModal} onClose={() => showSignUpModal(false)} title="Sign Up">
+				<SignUpMutation onClose={() => showSignUpModal(false)} />
+			</Dialog>
+		</AuthWrapper>
+	);
+};
 
 export default Auth;

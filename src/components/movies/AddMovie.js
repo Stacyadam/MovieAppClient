@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Button, Dialog } from '@blueprintjs/core';
-import { Query } from 'react-apollo';
+import { useQuery } from 'react-apollo-hooks';
 import gql from 'graphql-tag';
 import CreateMovieMutation from '../../mutations/CreateMovieMutation';
 
@@ -15,42 +15,23 @@ const CHECK_USER = gql`
 	}
 `;
 
-class AddMovie extends Component {
-	state = {
-		showModal: false
-	};
+const AddMovie = () => {
+	const [modal, showModal] = useState(false);
+	const { loading, error, data } = useQuery(CHECK_USER);
 
-	render() {
-		return (
-			//This needs to be a mutation with a resolver that updates the client caches token
-			<Query query={CHECK_USER}>
-				{({ loading, error, data, client }) => {
-					if (loading) return <p>Loading...</p>;
-					if (error) return <p>Error :(</p>;
+	if (loading) return <p>Loading...</p>;
+	if (error) return <p>Error :(</p>;
 
-					if (!data.user) return <div />;
+	if (!data.user) return <div />;
 
-					return (
-						<ButtonContainer>
-							<Button
-								intent="success"
-								icon="plus"
-								text="Add Movie"
-								onClick={() => this.setState({ showModal: true })}
-							/>
-							<Dialog
-								isOpen={this.state.showModal}
-								onClose={() => this.setState({ showModal: false })}
-								title="Add Movie"
-							>
-								<CreateMovieMutation onClose={() => this.setState({ showModal: false })} />
-							</Dialog>
-						</ButtonContainer>
-					);
-				}}
-			</Query>
-		);
-	}
-}
+	return (
+		<ButtonContainer>
+			<Button intent="success" icon="plus" text="Add Movie" onClick={() => showModal(true)} />
+			<Dialog isOpen={modal} onClose={() => showModal(false)} title="Add Movie">
+				<CreateMovieMutation onClose={() => showModal(false)} />
+			</Dialog>
+		</ButtonContainer>
+	);
+};
 
 export default AddMovie;

@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import gql from 'graphql-tag';
-import { Mutation } from 'react-apollo';
+import { useMutation } from 'react-apollo-hooks';
 import styled from 'styled-components';
 import { decodeJWT } from '../lib';
 
@@ -33,61 +33,66 @@ const SIGN_UP = gql`
 	}
 `;
 
-class SignUpMutation extends Component {
-	state = {
+const SignUpMutation = () => {
+	const [form, setValues] = useState({
 		email: '',
-		password: '',
-		errors: ''
+		password: ''
+	});
+	const [errors, updateErrors] = useState('');
+
+	const updateInput = e => {
+		setValues({
+			...form,
+			[e.target.name]: e.target.value
+		});
 	};
 
-	render() {
-		return (
-			<Mutation mutation={SIGN_UP}>
-				{(signUp, { client }) => (
-					<SignUpWrapper>
-						<form
-							onSubmit={async e => {
-								e.preventDefault();
-								try {
-									const { data } = await signUp({
-										variables: { email: this.state.email, password: this.state.password }
-									});
-									localStorage.setItem('token', data.signUp.token);
-									//TODO: this should work with a resolvers and mutation
-									const { email } = decodeJWT();
-									client.writeData({ data: { token: email } });
-									window.location.reload(false);
-								} catch (err) {
-									const errors = err.graphQLErrors[0].message;
-									this.setState({ errors });
-								}
-							}}
-						>
-							<InputWrapper>
-								<Errors>{this.state.errors}</Errors>
-								<p>Email</p>
-								<input
-									placeholder="jon@gmail.com"
-									type="text"
-									onChange={e => this.setState({ email: e.target.value })}
-									value={this.state.email}
-								/>
-								<p>Password</p>
-								<input
-									type="password"
-									onChange={e => this.setState({ password: e.target.value })}
-									value={this.state.password}
-								/>
-							</InputWrapper>
-							<ButtonWrapper>
-								<button type="submit">Sign Up</button>
-							</ButtonWrapper>
-						</form>
-					</SignUpWrapper>
-				)}
-			</Mutation>
-		);
-	}
-}
+	const signUp = useMutation(SIGN_UP, {
+		variables: {
+			email: form.email,
+			password: form.password
+		},
+		update: (cache, mutationResult) => {
+			const { signUp } = mutationResult.data;
+			localStorage.setItem('token', signUp.token);
+			const { email } = decodeJWT();
+			cache.writeData({ data: { token: email } });
+		}
+	});
+
+	const handleSubmit = async e => {
+		e.preventDefault();
+		try {
+			await signUp();
+			window.location.reload(false);
+		} catch (err) {
+			const errorsMessage = err.graphQLErrors[0].message;
+			updateErrors(errorsMessage);
+		}
+	};
+
+	return (
+		<SignUpWrapper>
+			<form onSubmit={e => handleSubmit(e)}>
+				<InputWrapper>
+					<Errors>{errors}</Errors>
+					<p>Email</p>
+					<input
+						placeholder="jon@gmail.com"
+						type="text"
+						name="email"
+						onChange={e => updateInput(e)}
+						value={form.email}
+					/>
+					<p>Password</p>
+					<input type="password" name="password" onChange={e => updateInput(e)} value={form.password} />
+				</InputWrapper>
+				<ButtonWrapper>
+					<button type="submit">Sign Up</button>
+				</ButtonWrapper>
+			</form>
+		</SignUpWrapper>
+	);
+};
 
 export default SignUpMutation;

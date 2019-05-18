@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import { Dialog } from '@blueprintjs/core';
@@ -10,21 +10,17 @@ const ModalContainer = styled.div`
 	}
 `;
 
-class RateMovieModal extends Component {
-	render() {
-		const { isOpen, movie, closeModal } = this.props;
+const RateMovieModal = ({ isOpen, movie, closeModal }) => {
+	if (!movie) return <div />;
 
-		if (!movie) return <div />;
-
-		return (
-			<Dialog isOpen={isOpen} icon="info-sign" onClose={() => closeModal()} title={movie.name}>
-				<ModalContainer>
-					<h2>Comment</h2>
-					<p>{movie.comment}</p>
-				</ModalContainer>
-			</Dialog>
-		);
-	}
-}
+	return (
+		<Dialog isOpen={isOpen} icon="info-sign" onClose={() => closeModal()} title={movie.name}>
+			<ModalContainer>
+				<h2>Comment</h2>
+				<p>{movie.comment}</p>
+			</ModalContainer>
+		</Dialog>
+	);
+};
 
 export default RateMovieModal;

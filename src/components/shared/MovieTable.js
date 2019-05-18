@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Icon } from '@blueprintjs/core';
 import { Collapse } from 'react-collapse';
@@ -35,36 +35,30 @@ const MoviesTable = styled.table`
 	}
 `;
 
-class MovieTable extends Component {
-	state = {
-		show: true
-	};
+const MovieTable = ({ header, children, hasMovies }) => {
+	const [show, toggleShow] = useState(true);
 
-	render() {
-		const { header, children, hasMovies } = this.props;
-
-		if (!hasMovies) {
-			return (
-				<MoviesContainer>
-					<MovieHeader>{header}</MovieHeader>
-					<td>No movies...login/signup to add more movies!</td>
-				</MoviesContainer>
-			);
-		}
+	if (!hasMovies) {
 		return (
 			<MoviesContainer>
-				<MovieWrapper>
-					<MovieHeader onClick={() => this.setState({ show: !this.state.show })}>
-						{header}
-						<Icon icon={this.state.show ? 'caret-down' : 'caret-up'} />
-					</MovieHeader>
-				</MovieWrapper>
-				<Collapse isOpened={this.state.show}>
-					<MoviesTable>{children}</MoviesTable>
-				</Collapse>
+				<MovieHeader>{header}</MovieHeader>
+				<td>No movies...login/signup to add more movies!</td>
 			</MoviesContainer>
 		);
 	}
-}
+	return (
+		<MoviesContainer>
+			<MovieWrapper>
+				<MovieHeader onClick={() => toggleShow(!show)}>
+					{header}
+					<Icon icon={show ? 'caret-down' : 'caret-up'} />
+				</MovieHeader>
+			</MovieWrapper>
+			<Collapse isOpened={show}>
+				<MoviesTable>{children}</MoviesTable>
+			</Collapse>
+		</MoviesContainer>
+	);
+};
 
 export default MovieTable;
