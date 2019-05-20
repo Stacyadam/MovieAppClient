@@ -5,6 +5,7 @@ import { Button, Icon } from '@blueprintjs/core';
 import { sortBy } from '../../lib';
 
 import MovieModal from './MovieModal';
+import RankMovieModal from './RankMovieModal';
 import RateMovieModal from './RateMovieModal';
 import MovieTable from '../shared/MovieTable';
 
@@ -13,7 +14,9 @@ const GET_MOVIES = gql`
 		movies {
 			name
 			rank
+			rankedBy
 			user {
+				id
 				email
 			}
 		}
@@ -23,6 +26,7 @@ const GET_MOVIES = gql`
 
 const MovieList = () => {
 	const [movieModal, showMovieModal] = useState(false);
+	const [rankModal, showRankModal] = useState(false);
 	const [ratingModal, showRatingModal] = useState(false);
 	const [movie, updateMovie] = useState({});
 	const [sort, updateSort] = useState({ type: 'rank', desc: true });
@@ -48,6 +52,7 @@ const MovieList = () => {
 				User <Icon icon={!sort.desc && sort.type === 'user' ? 'caret-up' : 'caret-down'} />
 			</th>
 			<th>Info</th>
+			{data.user && <th>Rank</th>}
 			{data.user && <th>Rate</th>}
 			{data.movies
 				.sort((a, b) => sortBy(a, b, sort))
@@ -63,7 +68,16 @@ const MovieList = () => {
 								onClick={() => showModal(showMovieModal(true), updateMovie(movie))}
 							/>
 						</td>
-						{data.user && data.user === movie.user.email && (
+						{data.user && (
+							<td>
+								<Button
+									intent="warning"
+									text="rank movie"
+									onClick={() => showModal(showRankModal(true), updateMovie(movie))}
+								/>
+							</td>
+						)}
+						{data.user && (
 							<td>
 								<Button
 									intent="danger"
@@ -78,6 +92,11 @@ const MovieList = () => {
 				isOpen={movieModal}
 				movie={movie}
 				closeModal={() => showModal(showMovieModal(false), updateMovie(null))}
+			/>
+			<RankMovieModal
+				isOpen={rankModal}
+				movie={movie}
+				closeModal={() => showModal(showRankModal(false), updateMovie(null))}
 			/>
 			<RateMovieModal
 				isOpen={ratingModal}

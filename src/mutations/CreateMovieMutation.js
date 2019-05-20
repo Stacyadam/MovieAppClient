@@ -31,6 +31,7 @@ const CREATE_MOVIE = gql`
 		createMovie(name: $name, rank: $rank) {
 			name
 			rank
+			rankedBy
 			user {
 				email
 			}
@@ -43,6 +44,7 @@ const GET_MOVIES = gql`
 		movies {
 			name
 			rank
+			rankedBy
 			user {
 				email
 			}

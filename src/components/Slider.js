@@ -7,6 +7,9 @@ const SliderContainer = styled.div`
 const SliderWrapper = styled.div`
 	display: flex;
 	justify-content: center;
+	input {
+		width: 100%;
+	}
 `;
 
 const ValueWrapper = styled.div`
@@ -18,8 +21,8 @@ const ValueText = styled.p`
 	color: ${props => (props.value > props.max / 2 - 1 ? 'green' : 'red')};
 `;
 
-const Slider = ({ min, max, onChange }) => {
-	const [value, updateValue] = useState(5);
+const Slider = ({ min, max, onChange, startRank = 5 }) => {
+	const [value, updateValue] = useState(startRank);
 
 	const updateInput = e => {
 		updateValue(e.target.value);

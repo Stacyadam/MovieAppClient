@@ -15,8 +15,13 @@ import { decodeJWT } from './lib';
 //TODO: token needs to be reactive in some way but updating with a resolver on initial page load.
 const token = localStorage.getItem('token');
 
+const uri =
+	process.env.NODE_ENV === 'development'
+		? 'http://localhost:8000/graphql'
+		: 'https://movies-app666.herokuapp.com/graphql';
+
 const client = new ApolloClient({
-	uri: 'https://movies-app666.herokuapp.com/graphql',
+	uri,
 	request: operation => {
 		const token = localStorage.getItem('token');
 		operation.setContext(context => {
@@ -31,7 +36,8 @@ const client = new ApolloClient({
 	clientState: {
 		defaults: {
 			user: token ? decodeJWT(token).email : null,
-			userRole: token ? decodeJWT(token).role : null
+			userRole: token ? decodeJWT(token).role : null,
+			userId: token ? decodeJWT(token).id : null
 		},
 		resolvers
 	}

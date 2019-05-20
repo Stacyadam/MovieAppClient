@@ -6,7 +6,7 @@ import { Collapse } from 'react-collapse';
 const MoviesContainer = styled.div`
 	margin-left: auto;
 	margin-right: auto;
-	width: 50%;
+	width: 70%;
 `;
 
 const MovieWrapper = styled.div`
